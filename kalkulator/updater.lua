@@ -244,7 +244,7 @@ Thread(Runnable({
                                                     succLayout.addView(infoLayout)
                                                     
                                                     local footerMsg = TextView(ctx)
-                                                    footerMsg.setText("Terima kasih telah memperbarui dan selamat menggunakan.")
+                                                    footerMsg.setText("Pembaruan berhasil disimpan. Silakan keluar dan buka ulang alat ini untuk menerapkan versi terbaru.")
                                                     footerMsg.setTextSize(14)
                                                     footerMsg.setTextColor(Color.parseColor("#4B5563"))
                                                     footerMsg.setGravity(Gravity.CENTER)
@@ -271,10 +271,6 @@ Thread(Runnable({
                                                     btnOk.setOnClickListener(luajava.createProxy("android.view.View$OnClickListener", {
                                                         onClick = function(v)
                                                             succAlert.dismiss()
-                                                            local loadFunc = loadfile(dest)
-                                                            if loadFunc then
-                                                                pcall(loadFunc)
-                                                            end
                                                         end
                                                     }))
                                                     succLayout.addView(btnOk)
