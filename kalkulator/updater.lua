@@ -1,4 +1,4 @@
-local ctx, currentVersion, pluginDir = ...
+local ctx, currentVersion, pluginDir, startApp = ...
 local jsonUrl = "https://raw.githubusercontent.com/lovesensari-coder/updater/main/kalkulator/update.json"
 
 local LinearLayout = luajava.bindClass("android.widget.LinearLayout")
@@ -150,9 +150,11 @@ Thread(Runnable({
                                                         alert.dismiss()
                                                     else
                                                         Toast.makeText(ctx, "Gagal menyimpan pembaruan.", 1).show()
+                                                        startApp()
                                                     end
                                                 else
                                                     Toast.makeText(ctx, "Gagal mengunduh pembaruan.", 1).show()
+                                                    startApp()
                                                 end
                                             end
                                         }))
@@ -176,6 +178,7 @@ Thread(Runnable({
                         btnCancel.setOnClickListener(luajava.createProxy("android.view.View$OnClickListener", {
                             onClick = function(v)
                                 alert.dismiss()
+                                startApp()
                             end
                         }))
                         layout.addView(btnCancel)
@@ -188,7 +191,11 @@ Thread(Runnable({
                         window.getDecorView().setPadding(0, 0, 0, 0)
                     end
                 }))
+            else
+                Handler(Looper.getMainLooper()).post(Runnable({run = startApp}))
             end
+        else
+            Handler(Looper.getMainLooper()).post(Runnable({run = startApp}))
         end
     end
 })).start()
