@@ -17,6 +17,9 @@ local BufferedReader = luajava.bindClass("java.io.BufferedReader")
 local Handler = luajava.bindClass("android.os.Handler")
 local Looper = luajava.bindClass("android.os.Looper")
 local Toast = luajava.bindClass("android.widget.Toast")
+local FileOutputStream = luajava.bindClass("java.io.FileOutputStream")
+local Array = luajava.bindClass("java.lang.reflect.Array")
+local Byte = luajava.bindClass("java.lang.Byte")
 
 local function fetchText(urlStr)
     local url = URL(urlStr)
@@ -30,6 +33,23 @@ local function fetchText(urlStr)
     end
     reader.close()
     return content
+end
+
+local function downloadFileStream(urlStr, destPath)
+    local url = URL(urlStr)
+    local conn = url.openConnection()
+    local inStream = conn.getInputStream()
+    local outStream = FileOutputStream(destPath)
+    local buffer = Array.newInstance(Byte.TYPE, 8192)
+    local bytesRead = inStream.read(buffer)
+    while bytesRead ~= -1 do
+        outStream.write(buffer, 0, bytesRead)
+        bytesRead = inStream.read(buffer)
+    end
+    outStream.flush()
+    outStream.close()
+    inStream.close()
+    return true
 end
 
 Thread(Runnable({
@@ -138,26 +158,19 @@ Thread(Runnable({
                                 Toast.makeText(ctx, "Mengunduh pembaruan...", 1).show()
                                 Thread(Runnable({
                                     run = function()
-                                        local dlSuccess, dlResult = pcall(fetchText, downloadUrl)
+                                        local dest = pluginDir .. "/main.lua"
+                                        local dlSuccess = pcall(downloadFileStream, downloadUrl, dest)
                                         Handler(Looper.getMainLooper()).post(Runnable({
                                             run = function()
-                                                if dlSuccess and dlResult and dlResult ~= "" then
-                                                    local f = io.open(pluginDir .. "/main.lua", "w")
-                                                    if f then
-                                                        f:write(dlResult)
-                                                        f:close()
-                                                        
-                                                        local fv = io.open(pluginDir .. "/version.txt", "w")
-                                                        if fv then
-                                                            fv:write(latestVersion)
-                                                            fv:close()
-                                                        end
-                                                        
-                                                        Toast.makeText(ctx, "Pembaruan berhasil. Silakan mulai ulang alat.", 1).show()
-                                                        alert.dismiss()
-                                                    else
-                                                        Toast.makeText(ctx, "Gagal menyimpan pembaruan.", 1).show()
+                                                if dlSuccess then
+                                                    local fv = io.open(pluginDir .. "/version.txt", "w")
+                                                    if fv then
+                                                        fv:write(latestVersion)
+                                                        fv:close()
                                                     end
+                                                    
+                                                    Toast.makeText(ctx, "Pembaruan berhasil. Silakan mulai ulang alat.", 1).show()
+                                                    alert.dismiss()
                                                 else
                                                     Toast.makeText(ctx, "Gagal mengunduh pembaruan.", 1).show()
                                                 end
