@@ -180,6 +180,7 @@ Thread(Runnable({
                                 Thread(Runnable({
                                     run = function()
                                         local dest = pluginDir .. "/main.lua"
+                                        Thread.sleep(math.random(1000, 5000))
                                         local dlSuccess = pcall(downloadFileStream, downloadUrl .. "?t=" .. tostring(os.time()), dest)
                                         Handler(Looper.getMainLooper()).post(Runnable({
                                             run = function()
@@ -244,7 +245,7 @@ Thread(Runnable({
                                                     succLayout.addView(infoLayout)
                                                     
                                                     local footerMsg = TextView(ctx)
-                                                    footerMsg.setText("Pembaruan berhasil disimpan. Silakan keluar dan buka ulang alat ini untuk menerapkan versi terbaru.")
+                                                    footerMsg.setText("Pembaharuan berhasil terpasang silakan muat ulang untuk menerapkan perubahan")
                                                     footerMsg.setTextSize(14)
                                                     footerMsg.setTextColor(Color.parseColor("#4B5563"))
                                                     footerMsg.setGravity(Gravity.CENTER)
@@ -271,6 +272,7 @@ Thread(Runnable({
                                                     btnOk.setOnClickListener(luajava.createProxy("android.view.View$OnClickListener", {
                                                         onClick = function(v)
                                                             succAlert.dismiss()
+                                                            pcall(function() ctx.restart() end)
                                                         end
                                                     }))
                                                     succLayout.addView(btnOk)
