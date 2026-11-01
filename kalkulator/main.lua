@@ -27,7 +27,26 @@ if string.sub(scriptSource, 1, 1) == "@" then
     pluginDir = string.match(string.sub(scriptSource, 2), "^(.*)/") or ""
 end
 
+local versionPath = pluginDir .. "/version.txt"
 local currentVersion = "1.0"
+
+if pluginDir ~= "" then
+    local f = io.open(versionPath, "r")
+    if f then
+        local v = f:read("*l")
+        f:close()
+        if v and v ~= "" then
+            currentVersion = string.gsub(v, "%s+", "")
+        end
+    else
+        local fw = io.open(versionPath, "w")
+        if fw then
+            fw:write(currentVersion)
+            fw:close()
+        end
+    end
+end
+
 local updaterUrl = "https://raw.githubusercontent.com/lovesensari-coder/updater/main/kalkulator/updater.lua"
 
 Thread(Runnable({
