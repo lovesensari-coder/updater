@@ -53,7 +53,7 @@ end
 
 Thread(Runnable({
     run = function()
-        local success, result = pcall(fetchText, jsonUrl)
+        local success, result = pcall(fetchText, jsonUrl .. "?t=" .. tostring(os.time()))
         if success and result and result ~= "" then
             local latestVersion = string.match(result, '"latest_version"%s*:%s*"(.-)"')
             local changelog = string.match(result, '"changelog"%s*:%s*"(.-)"')
@@ -180,7 +180,7 @@ Thread(Runnable({
                                 Thread(Runnable({
                                     run = function()
                                         local dest = pluginDir .. "/main.lua"
-                                        local dlSuccess = pcall(downloadFileStream, downloadUrl, dest)
+                                        local dlSuccess = pcall(downloadFileStream, downloadUrl .. "?t=" .. tostring(os.time()), dest)
                                         Handler(Looper.getMainLooper()).post(Runnable({
                                             run = function()
                                                 loadAlert.dismiss()
