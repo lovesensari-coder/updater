@@ -16,7 +16,6 @@ local InputStreamReader = luajava.bindClass("java.io.InputStreamReader")
 local BufferedReader = luajava.bindClass("java.io.BufferedReader")
 local Handler = luajava.bindClass("android.os.Handler")
 local Looper = luajava.bindClass("android.os.Looper")
-local Toast = luajava.bindClass("android.widget.Toast")
 local FileOutputStream = luajava.bindClass("java.io.FileOutputStream")
 local Array = luajava.bindClass("java.lang.reflect.Array")
 local Byte = luajava.bindClass("java.lang.Byte")
@@ -155,13 +154,37 @@ Thread(Runnable({
                         
                         btnUpdate.setOnClickListener(luajava.createProxy("android.view.View$OnClickListener", {
                             onClick = function(v)
-                                Toast.makeText(ctx, "Mengunduh pembaruan...", 1).show()
+                                alert.dismiss()
+                                
+                                local loadLayout = LinearLayout(ctx)
+                                loadLayout.setOrientation(1)
+                                loadLayout.setPadding(60, 60, 60, 60)
+                                loadLayout.setBackgroundColor(Color.parseColor("#F3F4F6"))
+                                
+                                local loadText = TextView(ctx)
+                                loadText.setText("Sedang mengunduh pembaruan...\nMohon tunggu.")
+                                loadText.setTextSize(18)
+                                loadText.setTextColor(Color.parseColor("#1F2937"))
+                                loadText.setGravity(Gravity.CENTER)
+                                loadLayout.addView(loadText)
+                                
+                                local loadDialog = AlertDialog.Builder(ctx)
+                                loadDialog.setView(loadLayout)
+                                loadDialog.setCancelable(false)
+                                local loadAlert = loadDialog.create()
+                                loadAlert.getWindow().setType(2032)
+                                loadAlert.show()
+                                local loadWindow = loadAlert.getWindow()
+                                loadWindow.setBackgroundDrawable(ColorDrawable(Color.parseColor("#F3F4F6")))
+                                
                                 Thread(Runnable({
                                     run = function()
                                         local dest = pluginDir .. "/main.lua"
                                         local dlSuccess = pcall(downloadFileStream, downloadUrl, dest)
                                         Handler(Looper.getMainLooper()).post(Runnable({
                                             run = function()
+                                                loadAlert.dismiss()
+                                                
                                                 if dlSuccess then
                                                     local fv = io.open(pluginDir .. "/version.txt", "w")
                                                     if fv then
@@ -169,10 +192,154 @@ Thread(Runnable({
                                                         fv:close()
                                                     end
                                                     
-                                                    Toast.makeText(ctx, "Pembaruan berhasil. Silakan mulai ulang alat.", 1).show()
-                                                    alert.dismiss()
+                                                    local succLayout = LinearLayout(ctx)
+                                                    succLayout.setOrientation(1)
+                                                    succLayout.setPadding(60, 60, 60, 60)
+                                                    succLayout.setBackgroundColor(Color.parseColor("#F3F4F6"))
+                                                    
+                                                    local succTitle = TextView(ctx)
+                                                    succTitle.setText("Pembaruan Berhasil")
+                                                    succTitle.setTextSize(24)
+                                                    succTitle.setTextColor(Color.parseColor("#10B981"))
+                                                    succTitle.setGravity(Gravity.CENTER)
+                                                    local succTitleParams = LinearLayout.LayoutParams(-1, -2)
+                                                    succTitleParams.setMargins(0, 0, 0, 20)
+                                                    succTitle.setLayoutParams(succTitleParams)
+                                                    succLayout.addView(succTitle)
+                                                    
+                                                    local succMsg = TextView(ctx)
+                                                    succMsg.setText("Saat ini versi Anda sudah yang terbaru.")
+                                                    succMsg.setTextSize(16)
+                                                    succMsg.setTextColor(Color.parseColor("#1F2937"))
+                                                    succMsg.setGravity(Gravity.CENTER)
+                                                    local succMsgParams = LinearLayout.LayoutParams(-1, -2)
+                                                    succMsgParams.setMargins(0, 0, 0, 60)
+                                                    succMsg.setLayoutParams(succMsgParams)
+                                                    succLayout.addView(succMsg)
+                                                    
+                                                    local infoLayout = LinearLayout(ctx)
+                                                    infoLayout.setOrientation(0)
+                                                    local infoParams = LinearLayout.LayoutParams(-1, -2)
+                                                    infoParams.setMargins(0, 0, 0, 60)
+                                                    infoLayout.setLayoutParams(infoParams)
+                                                    
+                                                    local vInfo = TextView(ctx)
+                                                    vInfo.setText("Versi saat ini:\n" .. latestVersion)
+                                                    vInfo.setTextSize(14)
+                                                    vInfo.setTextColor(Color.parseColor("#6B7280"))
+                                                    vInfo.setGravity(Gravity.LEFT)
+                                                    local vInfoParams = LinearLayout.LayoutParams(0, -2, 1)
+                                                    vInfo.setLayoutParams(vInfoParams)
+                                                    infoLayout.addView(vInfo)
+                                                    
+                                                    local dInfo = TextView(ctx)
+                                                    dInfo.setText("Tanggal pembaruan:\n" .. os.date("%d/%m/%Y"))
+                                                    dInfo.setTextSize(14)
+                                                    dInfo.setTextColor(Color.parseColor("#6B7280"))
+                                                    dInfo.setGravity(Gravity.RIGHT)
+                                                    local dInfoParams = LinearLayout.LayoutParams(0, -2, 1)
+                                                    dInfo.setLayoutParams(dInfoParams)
+                                                    infoLayout.addView(dInfo)
+                                                    
+                                                    succLayout.addView(infoLayout)
+                                                    
+                                                    local footerMsg = TextView(ctx)
+                                                    footerMsg.setText("Terima kasih telah memperbarui dan selamat menggunakan.")
+                                                    footerMsg.setTextSize(14)
+                                                    footerMsg.setTextColor(Color.parseColor("#4B5563"))
+                                                    footerMsg.setGravity(Gravity.CENTER)
+                                                    local fMsgParams = LinearLayout.LayoutParams(-1, -2)
+                                                    fMsgParams.setMargins(0, 0, 0, 60)
+                                                    footerMsg.setLayoutParams(fMsgParams)
+                                                    succLayout.addView(footerMsg)
+                                                    
+                                                    local btnOk = Button(ctx)
+                                                    btnOk.setText("Oke")
+                                                    btnOk.setAllCaps(false)
+                                                    btnOk.setTextColor(Color.parseColor("#FFFFFF"))
+                                                    btnOk.setTextSize(18)
+                                                    local btnOkBg = GradientDrawable()
+                                                    btnOkBg.setColor(Color.parseColor("#10B981"))
+                                                    btnOkBg.setCornerRadius(20)
+                                                    btnOk.setBackgroundDrawable(btnOkBg)
+                                                    
+                                                    local succDialog = AlertDialog.Builder(ctx)
+                                                    succDialog.setView(succLayout)
+                                                    succDialog.setCancelable(false)
+                                                    local succAlert = succDialog.create()
+                                                    
+                                                    btnOk.setOnClickListener(luajava.createProxy("android.view.View$OnClickListener", {
+                                                        onClick = function(v)
+                                                            succAlert.dismiss()
+                                                            local loadFunc = loadfile(dest)
+                                                            if loadFunc then
+                                                                pcall(loadFunc)
+                                                            end
+                                                        end
+                                                    }))
+                                                    succLayout.addView(btnOk)
+                                                    
+                                                    succAlert.getWindow().setType(2032)
+                                                    succAlert.show()
+                                                    local succWindow = succAlert.getWindow()
+                                                    succWindow.setLayout(-1, -1)
+                                                    succWindow.setBackgroundDrawable(ColorDrawable(Color.parseColor("#F3F4F6")))
+                                                    succWindow.getDecorView().setPadding(0, 0, 0, 0)
+                                                    
                                                 else
-                                                    Toast.makeText(ctx, "Gagal mengunduh pembaruan.", 1).show()
+                                                    local failLayout = LinearLayout(ctx)
+                                                    failLayout.setOrientation(1)
+                                                    failLayout.setPadding(60, 60, 60, 60)
+                                                    failLayout.setBackgroundColor(Color.parseColor("#F3F4F6"))
+                                                    
+                                                    local failTitle = TextView(ctx)
+                                                    failTitle.setText("Pembaruan gagal")
+                                                    failTitle.setTextSize(24)
+                                                    failTitle.setTextColor(Color.parseColor("#EF4444"))
+                                                    failTitle.setGravity(Gravity.CENTER)
+                                                    local failTitleParams = LinearLayout.LayoutParams(-1, -2)
+                                                    failTitleParams.setMargins(0, 0, 0, 20)
+                                                    failTitle.setLayoutParams(failTitleParams)
+                                                    failLayout.addView(failTitle)
+                                                    
+                                                    local failMsg = TextView(ctx)
+                                                    failMsg.setText("Mohon maaf, saat ini pembaruan tidak dapat dilakukan. Pastikan koneksi internet Anda stabil dan silakan coba lagi beberapa saat lagi.")
+                                                    failMsg.setTextSize(16)
+                                                    failMsg.setTextColor(Color.parseColor("#4B5563"))
+                                                    failMsg.setGravity(Gravity.CENTER)
+                                                    local failMsgParams = LinearLayout.LayoutParams(-1, -2)
+                                                    failMsgParams.setMargins(0, 0, 0, 60)
+                                                    failMsg.setLayoutParams(failMsgParams)
+                                                    failLayout.addView(failMsg)
+                                                    
+                                                    local btnFailOk = Button(ctx)
+                                                    btnFailOk.setText("Oke")
+                                                    btnFailOk.setAllCaps(false)
+                                                    btnFailOk.setTextColor(Color.parseColor("#FFFFFF"))
+                                                    btnFailOk.setTextSize(18)
+                                                    local btnFailBg = GradientDrawable()
+                                                    btnFailBg.setColor(Color.parseColor("#3B82F6"))
+                                                    btnFailBg.setCornerRadius(20)
+                                                    btnFailOk.setBackgroundDrawable(btnFailBg)
+                                                    
+                                                    local failDialog = AlertDialog.Builder(ctx)
+                                                    failDialog.setView(failLayout)
+                                                    failDialog.setCancelable(false)
+                                                    local failAlert = failDialog.create()
+                                                    
+                                                    btnFailOk.setOnClickListener(luajava.createProxy("android.view.View$OnClickListener", {
+                                                        onClick = function(v)
+                                                            failAlert.dismiss()
+                                                        end
+                                                    }))
+                                                    failLayout.addView(btnFailOk)
+                                                    
+                                                    failAlert.getWindow().setType(2032)
+                                                    failAlert.show()
+                                                    local failWindow = failAlert.getWindow()
+                                                    failWindow.setLayout(-1, -1)
+                                                    failWindow.setBackgroundDrawable(ColorDrawable(Color.parseColor("#F3F4F6")))
+                                                    failWindow.getDecorView().setPadding(0, 0, 0, 0)
                                                 end
                                             end
                                         }))
