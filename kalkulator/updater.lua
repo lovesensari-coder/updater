@@ -1,5 +1,5 @@
 local ctx, currentVersion, pluginDir = ...
-local jsonUrl = "https://raw.githubusercontent.com/lovesensari-coder/updater/main/kalkulator/update.json"
+local jsonUrl = "https://raw.githubusercontent.com/lovesensari-coder/updater/main/kalkulator/update.json?t=" .. tostring(os.time())
 
 local LinearLayout = luajava.bindClass("android.widget.LinearLayout")
 local TextView = luajava.bindClass("android.widget.TextView")
@@ -138,7 +138,7 @@ Thread(Runnable({
                                 Toast.makeText(ctx, "Mengunduh pembaruan...", 1).show()
                                 Thread(Runnable({
                                     run = function()
-                                        local dlSuccess, dlResult = pcall(fetchText, downloadUrl)
+                                        local dlSuccess, dlResult = pcall(fetchText, downloadUrl .. "?t=" .. tostring(os.time()))
                                         Handler(Looper.getMainLooper()).post(Runnable({
                                             run = function()
                                                 if dlSuccess and dlResult and dlResult ~= "" then
@@ -146,6 +146,13 @@ Thread(Runnable({
                                                     if f then
                                                         f:write(dlResult)
                                                         f:close()
+                                                        
+                                                        local fV = io.open(pluginDir .. "/version.txt", "w")
+                                                        if fV then
+                                                            fV:write(latestVersion)
+                                                            fV:close()
+                                                        end
+                                                        
                                                         Toast.makeText(ctx, "Pembaruan berhasil. Silakan mulai ulang alat.", 1).show()
                                                         alert.dismiss()
                                                     else
