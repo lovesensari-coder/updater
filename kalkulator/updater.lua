@@ -146,6 +146,13 @@ Thread(Runnable({
                                                     if f then
                                                         f:write(dlResult)
                                                         f:close()
+                                                        
+                                                        local fv = io.open(pluginDir .. "/version.txt", "w")
+                                                        if fv then
+                                                            fv:write(latestVersion)
+                                                            fv:close()
+                                                        end
+                                                        
                                                         Toast.makeText(ctx, "Pembaruan berhasil. Silakan mulai ulang alat.", 1).show()
                                                         alert.dismiss()
                                                     else
