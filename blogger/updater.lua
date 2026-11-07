@@ -17,12 +17,14 @@ local BufferedReader = luajava.bindClass("java.io.BufferedReader")
 local Handler = luajava.bindClass("android.os.Handler")
 local Looper = luajava.bindClass("android.os.Looper")
 local FileOutputStream = luajava.bindClass("java.io.FileOutputStream")
-local Array = luajava.bindClass("java.lang.reflect.Array")
-local Byte = luajava.bindClass("java.lang.Byte")
+local Channels = luajava.bindClass("java.nio.channels.Channels")
+local Long = luajava.bindClass("java.lang.Long")
 
 local function fetchText(urlStr)
     local url = URL(urlStr)
     local conn = url.openConnection()
+    conn.setConnectTimeout(15000)
+    conn.setReadTimeout(15000)
     local reader = BufferedReader(InputStreamReader(conn.getInputStream()))
     local content = ""
     local line = reader.readLine()
@@ -31,23 +33,26 @@ local function fetchText(urlStr)
         line = reader.readLine()
     end
     reader.close()
+    conn.disconnect()
     return content
 end
 
 local function downloadFileStream(urlStr, destPath)
     local url = URL(urlStr)
     local conn = url.openConnection()
+    conn.setConnectTimeout(15000)
+    conn.setReadTimeout(60000)
     local inStream = conn.getInputStream()
     local outStream = FileOutputStream(destPath)
-    local buffer = Array.newInstance(Byte.TYPE, 8192)
-    local bytesRead = inStream.read(buffer)
-    while bytesRead ~= -1 do
-        outStream.write(buffer, 0, bytesRead)
-        bytesRead = inStream.read(buffer)
-    end
+    local readableChannel = Channels.newChannel(inStream)
+    local writableChannel = outStream.getChannel()
+    writableChannel.transferFrom(readableChannel, 0, Long.MAX_VALUE)
+    writableChannel.close()
+    readableChannel.close()
     outStream.flush()
     outStream.close()
     inStream.close()
+    conn.disconnect()
     return true
 end
 
