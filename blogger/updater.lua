@@ -1,5 +1,5 @@
 local ctx, currentVersion, pluginDir = ...
-local jsonUrl = "__JSON_URL__"
+local jsonUrl = "https://raw.githubusercontent.com/lovesensari-coder/updater/main/blogger/update.json"
 
 local LinearLayout = luajava.bindClass("android.widget.LinearLayout")
 local TextView = luajava.bindClass("android.widget.TextView")
