@@ -1,7 +1,7 @@
 {
   "latest_version": "1.0",
-  "update_date": "__UPDATE_DATE__",
-  "expiry_date": "__EXPIRY_DATE__",
+  "update_date": "10/11/2026",
+  "expiry_date": "17/11/2026",
   "changelog": "- perbaikan serta peningkatan dan penambahan fitur.",
-  "download_url": "__DOWNLOAD_URL__"
+  "download_url": "https://raw.githubusercontent.com/lovesensari-coder/updater/main/blogger/main.lua"
 }
